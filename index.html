@@ -236,8 +236,8 @@
 
         // Global speed configuration mapping
         const speedMap = {
-            1: { label: "Very Slow", rate: 0.6 },
-            2: { label: "Slow",      rate: 0.8 },
+            1: { label: "Very Slow", rate: 0.5 },
+            2: { label: "Slow",      rate: 0.7 },
             3: { label: "Normal",    rate: 1.0 },
             4: { label: "Fast",      rate: 1.2 }
         };
@@ -585,22 +585,26 @@
             if (activePlaybackArray.length === 0) return;
             if (playbackIndex > 0) {
                 playbackIndex--;
+
+                updatePlayerScreenHUD();
+                speakCurrentItem();
             } else {
-                playbackIndex = activePlaybackArray.length - 1; 
+                //playbackIndex = activePlaybackArray.length - 1; 
+                alert("This is the first item.");
             }
-            updatePlayerScreenHUD();
-            speakCurrentItem();
         }
 
         function goToNextItem() {
             if (activePlaybackArray.length === 0) return;
             if (playbackIndex < activePlaybackArray.length - 1) {
                 playbackIndex++;
+
+                updatePlayerScreenHUD();
+                speakCurrentItem();
             } else {
-                playbackIndex = 0; 
+                //playbackIndex = 0; 
+                alert("This is the last item.");
             }
-            updatePlayerScreenHUD();
-            speakCurrentItem();
         }
 
         // 7. USER INTERFACE GENERATION LOOPS
