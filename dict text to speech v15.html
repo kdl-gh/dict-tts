@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Multi-Language Sentence Player</title>
+    <!-- Tailwind CSS Engine for dynamic iPad layouts -->
+    <script src="https://tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- TOP CONTROL NAVIGATION BAR -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-language text-blue-600 mr-2"></i>Language Reader Dashboard</h1>
+        <div id="status-bar" class="text-sm font-semibold text-gray-500">Loading your language library...</div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT AREA -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT PANEL: PERSISTENT DATABASE ENGINE VIEW -->
+        <section class="w-80 bg-white border-r border-gray-200 p-4 flex flex-col space-y-6 overflow-y-auto">
+            <!-- Group Registration Module -->
+            <div class="space-y-2">
+                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Create Group</h2>
+                <div class="flex space-x-2">
+                    <input type="text" id="group-name-input" placeholder="New Group Name" class="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-blue-500">
+                    <button onclick="createNewGroup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+
+            <!-- Library Database Listing Container -->
+            <div class="flex-1 space-y-4">
+                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Your Language Groups</h2>
+                <div id="groups-list-container" class="space-y-4">
+                    <!-- Dynamic database content injects here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER PANEL: INPUT INGESTION & TEXT TOKENIZER RULES -->
+        <section class="w-96 bg-gray-50 border-r border-gray-200 p-6 flex flex-col space-y-4 overflow-y-auto">
+            <h2 class="text-lg font-bold text-gray-700">Text Processor Engine</h2>
+            
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">List Configuration Name</label>
+                <input type="text" id="list-name-input" placeholder="e.g., UK English Vocabulary" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-blue-500">
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">Raw Input Text String Block</label>
+                <textarea id="text-blob-input" rows="6" placeholder="Paste your text here..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-blue-500 resize-none"></textarea>
+            </div>
+
+            <!-- CHOOSE LANGUAGE OPTION -->
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">Language Voice Target Profile</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="lang-chinese" onclick="setLanguageOption('zh')" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Chinese (Cantonese Voice)</button>
+                    <button id="lang-english" onclick="setLanguageOption('en')" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">English (British Voice)</button>
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">Parsing Breakdown Target Strategy</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="strategy-sentence" onclick="setStrategy(true)" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Short Sentences</button>
+                    <button id="strategy-word" onclick="setStrategy(false)" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">Words / Custom Lines</button>
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">Target Database Storage Folder Location</label>
+                <select id="group-target-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-blue-500">
+                    <option value="">Select a Group...</option>
+                </select>
+            </div>
+
+            <button onclick="processAndSaveToIndexedDB()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors shadow">
+                Process Text & Commit to Browser
+            </button>
+        </section>
+
+        <!-- RIGHT PANEL: AUDIO PERFORMANCE PLAYER HUD -->
+        <section class="flex-1 p-8 flex flex-col justify-between bg-gray-100">
+            <div class="flex-1 flex flex-col justify-center items-center space-y-6">
+                
+                <!-- Main Screen Text Indicator Window Frame Component -->
+                <div class="w-full max-w-2xl bg-white rounded-2xl shadow-md p-8 min-h-[280px] flex flex-col justify-between border border-gray-200">
+                    <div id="playback-index-counter" class="text-center text-xs font-bold tracking-widest text-gray-400 uppercase">Item 0 of 0</div>
+                    <div id="playback-screen-text" class="text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4">
+                        Please select a compiled list from the sidebar navigation tree panel to begin.
+                    </div>
+                    <div id="playback-lang-indicator" class="text-center text-xs font-semibold text-gray-400">Voice Engine: None</div>
+                </div>
+
+                <!-- CONFIGURATION PANEL: DYNAMIC HARDWARE VOICE SELECTOR -->
+                <div class="w-full max-w-2xl grid grid-cols-2 gap-4">
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col space-y-1.5">
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-headset mr-1 text-blue-500"></i> Active System Voice Engine</label>
+                        <select id="hardware-voice-dropdown" onchange="userSelectedVoiceOverride()" class="w-full text-sm font-medium bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-2 text-gray-700 focus:outline-blue-500">
+                            <option value="">(Loading system voices...)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex justify-end items-center">
+                        <button id="shuffle-toggle-btn" onclick="toggleShuffleMode()" class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition">
+                            <i class="fa-solid fa-shuffle"></i> <span>Shuffle Order: OFF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unified Media Controller Bar UI Dashboard -->
+            <div class="w-full max-w-md mx-auto bg-white rounded-full shadow-lg border border-gray-200 p-4 flex items-center justify-around mb-6">
+                <!-- PREVIOUS BUTTON -->
+                <button onclick="goToPreviousItem()" class="flex flex-col items-center group">
+                    <div class="w-12 h-12 rounded-full bg-orange-100 group-hover:bg-orange-200 flex items-center justify-center text-orange-600 text-lg transition"><i class="fa-solid fa-backward"></i></div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-1 uppercase">Prev</span>
+                </button>
+
+                <!-- PLAY / REPLAY CURRENT ITEM BUTTON -->
+                <button onclick="speakCurrentItem()" class="flex flex-col items-center group">
+                    <div class="w-16 h-16 rounded-full bg-blue-600 group-hover:bg-blue-700 flex items-center justify-center text-white text-2xl shadow-md transition"><i class="fa-solid fa-play ml-1"></i></div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-1 uppercase">Play</span>
+                </button>
+
+                <!-- NEXT BUTTON -->
+                <button onclick="goToNextItem()" class="flex flex-col items-center group">
+                    <div class="w-12 h-12 rounded-full bg-green-100 group-hover:bg-green-200 flex items-center justify-center text-green-600 text-lg transition"><i class="fa-solid fa-forward"></i></div>
+                    <span class="text-[10px] font-bold text-gray-500 mt-1 uppercase">Next</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- CORE APPLICATION DATABASE & AUDIO ENGINE LOGIC -->
+    <script>
+        let db;
+        let dbState = [];
+        let activeList = null;
+        let activePlaybackArray = [];
+        let playbackIndex = 0;
+        let splitBySentenceStrategy = true;
+        let selectedLanguage = 'zh'; 
+        let isShuffleEnabled = false;
+        
+        let allSystemVoices = [];
+        let chosenVoiceMapping = { 'zh': null, 'en': null };
+
+        // Punctuation maps
+        const punctuationAudioMap = {
+            'zh': {
+                '.': '句號', '。': '句號', '?': '問號', '？': '問號', '!': '感嘆號', '！': '感嘆號',
+                ',': '逗號', '，': '逗號', '、': '頓號', ':': '冒號', '：': '冒號',
+                '“': '開引號', '”': '關引號', '「': '開引號', '」': '關引號'
+            },
+            'en': {
+                '.': ' Period', '。': ' Period', '?': ' Question Mark', '？': ' Question Mark', '!': ' Exclamation Point', '！': ' Exclamation Point',
+                ',': ' Comma', '，': ' Comma', '、': ' Comma', ':': ' Colon', '：': ' Colon',
+                '"': ' Quotation Mark ', "'": ' Quotation Mark ', '“': ' Quotation Mark ', '”': ' Quotation Mark '
+            }
+        };
+
+        // 1. SAFE DATABASE SCHEMA INITIALIZATION (EXECUTES IMMEDIATELY)
+        const request = indexedDB.open("LanguageReaderLocalDatabase", 1);
+        
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("groups")) {
+                db.createObjectStore("groups", { keyPath: "id", autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains("lists")) {
+                db.createObjectStore("lists", { keyPath: "id", autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = (e) => { 
+            db = e.target.result; 
+            // Load database content instantly without blocking on anything else
+            fetchDatabaseSchema(); 
+            // Separately initialize audio hardware stream
+            loadSystemVoiceHardwareProfiles(); 
+        };
+
+        request.onerror = (e) => {
+            console.error("Database failed to open:", e.target.error);
+            document.getElementById("status-bar").textContent = "Database Error! Please try refreshing.";
+        };
+
+        // 2. HARDWARE SYSTEM VOICE MANAGEMENT (ISOLATED TIMING ARCHITECTURE)
+        function loadSystemVoiceHardwareProfiles() {
+            if (typeof speechSynthesis === 'undefined') return;
+            
+            allSystemVoices = window.speechSynthesis.getVoices();
+            const dropdown = document.getElementById("hardware-voice-dropdown");
+            
+            // Filter down to valid target languages
+            const validVoices = allSystemVoices.filter(v => v.lang === 'zh-HK' || v.lang === 'en-GB');
+
+            if (validVoices.length === 0) {
+                dropdown.innerHTML = `<option value="">Default System Voice</option>`;
+                return;
+            }
+
+            dropdown.innerHTML = "";
+            const zhGroup = document.createElement("optgroup"); zhGroup.label = "Cantonese Voices (zh-HK)";
+            const enGroup = document.createElement("optgroup"); enGroup.label = "British Voices (en-GB)";
+
+            validVoices.forEach(voice => {
+                const opt = document.createElement("option");
+                opt.value = voice.name;
+                let label = voice.name;
+                if (voice.name.toLowerCase().includes('enhanced')) label += " (High Quality/Neural)";
+                if (voice.name.toLowerCase().includes('premium')) label += " (Premium HD)";
+                opt.textContent = label;
+
+                if (voice.lang === 'zh-HK') zhGroup.appendChild(opt);
+                if (voice.lang === 'en-GB') enGroup.appendChild(opt);
+            });
+
+            if (zhGroup.children.length > 0) dropdown.appendChild(zhGroup);
+            if (enGroup.children.length > 0) dropdown.appendChild(enGroup);
+
+            // Restore voice selection from localStorage safely
+            const savedZhVoice = localStorage.getItem("last_selected_voice_zh");
+            const savedEnVoice = localStorage.getItem("last_selected_voice_en");
+
+            chosenVoiceMapping['zh'] = allSystemVoices.find(v => v.name === savedZhVoice) || 
+                                       allSystemVoices.find(v => v.lang === 'zh-HK' && v.name.toLowerCase().includes('enhanced')) ||
+                                       allSystemVoices.find(v => v.lang === 'zh-HK') || null;
+
+            chosenVoiceMapping['en'] = allSystemVoices.find(v => v.name === savedEnVoice) || 
+                                       allSystemVoices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('enhanced')) ||
+                                       allSystemVoices.find(v => v.lang === 'en-GB') || null;
+
+            syncDropdownUIWithActiveProfile();
+        }
+
+        function syncDropdownUIWithActiveProfile() {
+            const dropdown = document.getElementById("hardware-voice-dropdown");
+            if (!dropdown) return;
+            
+            const currentLang = activeList ? activeList.lang : selectedLanguage;
+            const activeProfile = chosenVoiceMapping[currentLang];
+            if (activeProfile) dropdown.value = activeProfile.name;
+        }
+
+        function userSelectedVoiceOverride() {
+            const dropdown = document.getElementById("hardware-voice-dropdown");
+            const selectedName = dropdown.value;
+            const foundVoice = allSystemVoices.find(v => v.name === selectedName);
+            
+            if (foundVoice) {
+                if (foundVoice.lang === 'zh-HK') {
+                    chosenVoiceMapping['zh'] = foundVoice;
+                    localStorage.setItem("last_selected_voice_zh", foundVoice.name);
+                } else if (foundVoice.lang === 'en-GB') {
+                    chosenVoiceMapping['en'] = foundVoice;
+                    localStorage.setItem("last_selected_voice_en", foundVoice.name);
+                }
+                if (activeList) speakCurrentItem(); 
+            }
+        }
+
+        // Hook Safari voice refresh safely
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadSystemVoiceHardwareProfiles;
+        }
+
+        // 3. FORM INTERACTION HANDLERS
+        function setLanguageOption(lang) {
+            selectedLanguage = lang;
+            document.getElementById('lang-chinese').className = lang === 'zh' ? "py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600" : "py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100";
+            document.getElementById('lang-english').className = lang === 'en' ? "py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600" : "py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100";
+            syncDropdownUIWithActiveProfile();
+        }
+
+        function setStrategy(isSentence) {
+            splitBySentenceStrategy = isSentence;
+            document.getElementById('strategy-sentence').className = isSentence ? "py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600" : "py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100";
+            document.getElementById('strategy-word').className = !isSentence ? "py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600" : "py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100";
+        }
+
+        // 4. TEXT PARSING SEGMENTATION ENGINE MATRIX
+        function executeTokenSplitRules(text, parseBySentences, lang) {
+            if (parseBySentences) {
+                const tokens = text.split(/([.!?。！？,，\n\r：:]+)/);
+                const items = [];
+                for (let i = 0; i < tokens.length; i += 2) {
+                    let sentence = tokens[i] ? tokens[i].trim() : "";
+                    let punc = tokens[i+1] ? tokens[i+1].trim() : "";
+                    let compiledPhrase = (sentence + punc).trim();
+                    if (compiledPhrase.length === 0) continue;
+
+                    let nextTokenIndex = i + 2;
+                    if (nextTokenIndex < tokens.length && tokens[nextTokenIndex]) {
+                        let nextTextChunk = tokens[nextTokenIndex].trim();
+                        let matchQuote = nextTextChunk.match(/^([”」"]+)/);
+                        if (matchQuote) {
+                            compiledPhrase += matchQuote[1];
+                            tokens[nextTokenIndex] = tokens[nextTokenIndex].replace(/^([”」"]+)/, "");
+                        }
+                    }
+                    if (compiledPhrase.length > 0) items.push(compiledPhrase);
+                }
+                return items;
+            } else {
+                if (lang === 'zh') {
+                    return text.split(/[\s\n\r]+/).map(s => s.trim()).filter(s => s.length > 0);
+                } else {
+                    return text.split(/[\n\r]+/).map(s => s.trim()).filter(s => s.length > 0);
+                }
+            }
+        }
+
+        // 5. DATA LOADING & SAVE PIPELINE
+        function fetchDatabaseSchema() {
+            if (!db) return;
+            
+            try {
+                const transaction = db.transaction(["groups", "lists"], "readonly");
+                const groupStore = transaction.objectStore("groups");
+                const listStore = transaction.objectStore("lists");
+
+                let fetchedGroups = [];
+                let fetchedLists = [];
+
+                groupStore.openCursor().onsuccess = (e) => {
+                    let cursor = e.target.result;
+                    if (cursor) { fetchedGroups.push(cursor.value); cursor.continue(); }
+                };
+
+                listStore.openCursor().onsuccess = (e) => {
+                    let cursor = e.target.result;
+                    if (cursor) { fetchedLists.push(cursor.value); cursor.continue(); }
+                };
+
+                transaction.oncomplete = () => {
+                    dbState = fetchedGroups.map(g => ({ ...g, subLists: fetchedLists.filter(l => l.groupId === g.id) }));
+                    renderSidebarDOMComponents();
+                    document.getElementById("status-bar").textContent = activeList ? `Currently Viewing: ${activeList.name}` : "Select or create a list to begin";
+                };
+            } catch (err) {
+                console.error("Failed to fetch database data securely:", err);
+            }
+        }
+
+        function createNewGroup() {
+            const name = document.getElementById("group-name-input").value.trim();
+            if (!name || !db) return;
+            
+            const tx = db.transaction(["groups"], "readwrite");
+            tx.objectStore("groups").add({ name: name });
+            tx.oncomplete = () => { 
+                document.getElementById("group-name-input").value = ""; 
+                fetchDatabaseSchema(); 
+            };
+        }
+
+        function processAndSaveToIndexedDB() {
+            const name = document.getElementById("list-name-input").value.trim();
+            const text = document.getElementById("text-blob-input").value.trim();
+            const selectValue = document.getElementById("group-target-select").value;
+
+            if (!name || !text || !selectValue || !db) return alert("Please fill out list title, text, and select a target folder group.");
+            const groupId = parseInt(selectValue);
+
+            const itemsArray = executeTokenSplitRules(text, splitBySentenceStrategy, selectedLanguage);
+
+            const tx = db.transaction(["lists"], "readwrite");
+            tx.objectStore("lists").add({ groupId: groupId, name: name, items: itemsArray, lang: selectedLanguage });
+            tx.oncomplete = () => {
+                document.getElementById("list-name-input").value = "";
+                document.getElementById("text-blob-input").value = "";
+                fetchDatabaseSchema();
+            };
+        }
+
+        function deleteListFromDB(id, event) {
+            event.stopPropagation();
+            if (!db) return;
+            
+            const tx = db.transaction(["lists"], "readwrite");
+            tx.objectStore("lists").delete(id);
+            tx.oncomplete = () => { 
+                if (activeList && activeList.id === id) resetPlayerUI(); 
+                fetchDatabaseSchema(); 
+            };
+        }
+
+        // 6. AUDIO REPLAY CONTROL MECHANICS
+        function selectActiveList(listId) {
+            const tx = db.transaction(["lists"], "readonly");
+            tx.objectStore("lists").get(listId).onsuccess = (e) => {
+                activeList = e.target.result;
+                playbackIndex = 0;
+                syncDropdownUIWithActiveProfile();
+                initializeTrackSequencer();
+            };
+        }
+
+        function initializeTrackSequencer() {
+            if (!activeList || activeList.items.length === 0) return;
+            
+            if (isShuffleEnabled) {
+                activePlaybackArray = [...activeList.items].sort(() => Math.random() - 0.5);
+            } else {
+                activePlaybackArray = [...activeList.items];
+            }
+            updatePlayerScreenHUD();
+            speakCurrentItem();
+        }
+
+        function toggleShuffleMode() {
+            isShuffleEnabled = !isShuffleEnabled;
+            const btn = document.getElementById("shuffle-toggle-btn");
+            if (isShuffleEnabled) {
+                btn.className = "flex items-center space-x-2 text-sm font-bold text-white bg-blue-600 border border-blue-600 px-5 py-3 rounded-xl shadow-sm hover:bg-blue-700 transition";
+                btn.querySelector("span").textContent = "Shuffle Order: ON";
+            } else {
+                btn.className = "flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition";
+                btn.querySelector("span").textContent = "Shuffle Order: OFF";
+            }
+            if (activeList) initializeTrackSequencer();
+        }
+
+        function speakCurrentItem() {
+            if (activePlaybackArray.length === 0 || !activeList || typeof speechSynthesis === 'undefined') return;
+            
+            window.speechSynthesis.cancel(); 
+
+            let rawString = activePlaybackArray[playbackIndex];
+            let langMode = activeList.lang; 
+            
+            let processedSpeakString = "";
+            let currentLangMap = punctuationAudioMap[langMode];
+
+            for (let char of rawString) {
+                if (currentLangMap && currentLangMap[char]) {
+                    processedSpeakString += currentLangMap[char];
+                } else {
+                    processedSpeakString += char;
+                }
+            }
+
+            const utterance = new SpeechSynthesisUtterance(processedSpeakString);
+            
+            // Assign verified user profile choice from dictionary mapping
+            const forcedTargetVoice = chosenVoiceMapping[langMode];
+            if (forcedTargetVoice) {
+                utterance.voice = forcedTargetVoice;
+            } else {
+                utterance.lang = langMode === 'zh' ? 'zh-HK' : 'en-GB';
+            }
+
+            utterance.rate = 0.88; 
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function goToPreviousItem() {
+            if (activePlaybackArray.length === 0) return;
+            if (playbackIndex > 0) {
+                playbackIndex--;
+            } else {
+                playbackIndex = activePlaybackArray.length - 1; 
+            }
+            updatePlayerScreenHUD();
+            speakCurrentItem();
+        }
+
+        function goToNextItem() {
+            if (activePlaybackArray.length === 0) return;
+            if (playbackIndex < activePlaybackArray.length - 1) {
+                playbackIndex++;
+            } else {
+                playbackIndex = 0; 
+            }
+            updatePlayerScreenHUD();
+            speakCurrentItem();
+        }
+
+        // 7. USER INTERFACE GENERATION LOOPS
+         Oskar = 0;
+        function updatePlayerScreenHUD() {
+            if (!activeList) return;
+            document.getElementById("playback-index-counter").textContent = `Item ${playbackIndex + 1} of ${activePlaybackArray.length}`;
+            
+            const screenText = document.getElementById("playback-screen-text");
+            screenText.textContent = activePlaybackArray[playbackIndex];
+            
+            if (activePlaybackArray[playbackIndex].length <= 2) {
+                screenText.className = "text-center text-7xl font-bold text-gray-800 leading-relaxed my-auto px-4";
+            } else {
+                screenText.className = "text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
+            }
+            
+            document.getElementById("status-bar").textContent = `Currently Viewing: ${activeList.name}`;
+            
+            const activeProfile = chosenVoiceMapping[activeList.lang];
+            const nameDisplay = activeProfile ? activeProfile.name : "Default System Voice";
+            document.getElementById("playback-lang-indicator").textContent = `Hardware Voice locked onto: ${nameDisplay}`;
+        }
+
+        function resetPlayerUI() {
+            activeList = null; activePlaybackArray = []; playbackIndex = 0;
+            document.getElementById("playback-index-counter").textContent = "Item 0 of 0";
+            document.getElementById("playback-screen-text").textContent = "Please select a compiled list from the sidebar navigation tree panel to begin.";
+            document.getElementById("playback-screen-text").className = "text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
+            document.getElementById("status-bar").textContent = "Select or create a list to begin";
+            document.getElementById("playback-lang-indicator").textContent = "Voice Engine: None";
+        }
+
+        function renderSidebarDOMComponents() {
+            const listContainer = document.getElementById("groups-list-container");
+            const selectDropdown = document.getElementById("group-target-select");
+            
+            listContainer.innerHTML = "";
+            selectDropdown.innerHTML = '<option value="">Select a Group...</option>';
+
+            dbState.forEach(group => {
+                const opt = document.createElement("option");
+                opt.value = group.id; opt.textContent = group.name;
+                selectDropdown.appendChild(opt);
+
+                const groupSection = document.createElement("div");
+                groupSection.className = "space-y-1";
+                groupSection.innerHTML = `<div class="text-sm font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded flex justify-between items-center"><span class="truncate">${group.name}</span></div>`;
+                
+                const subListContainer = document.createElement("div");
+                subListContainer.className = "pl-3 space-y-0.5 border-l border-gray-200 ml-2 mt-1";
+
+                if (group.subLists.length === 0) {
+                    subListContainer.innerHTML = '<div class="text-xs text-gray-400 italic py-1">No lists inside group</div>';
+                } else {
+                    group.subLists.forEach(sub => {
+                        const langBadge = sub.lang === 'zh' ? '粤' : 'UK';
+                        const isCurrentActive = activeList && activeList.id === sub.id;
+                        const row = document.createElement("div");
+                        row.onclick = () => selectActiveList(sub.id);
+                        row.className = `flex justify-between items-center text-sm px-2 py-1.5 rounded-lg cursor-pointer transition ${isCurrentActive ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`;
+                        row.innerHTML = `
+                            <span class="truncate flex items-center">
+                                <span class="text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-700 font-bold mr-1.5">${langBadge}</span>
+                                ${sub.name}
+                            </span>
+                            <button onclick="deleteListFromDB(${sub.id}, event)" class="text-gray-400 hover:text-red-500 p-0.5"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                        `;
+                        subListContainer.appendChild(row);
+                    });
+                }
+                groupSection.appendChild(subListContainer);
+                listContainer.appendChild(groupSection);
+            });
+        }
+    </script>
+</body>
+</html>
