@@ -64,16 +64,16 @@
             <div class="space-y-1">
                 <label class="text-xs font-bold text-gray-500">Language Voice Target Profile</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button id="lang-chinese" onclick="setLanguageOption('zh')" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Chinese (Cantonese Voice)</button>
-                    <button id="lang-english" onclick="setLanguageOption('en')" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">English (British Voice)</button>
+                    <button id="lang-chinese" onclick="setLanguageOption('zh')" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">中文</button>
+                    <button id="lang-english" onclick="setLanguageOption('en')" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">English</button>
                 </div>
             </div>
 
             <div class="space-y-1">
                 <label class="text-xs font-bold text-gray-500">Parsing Breakdown Target Strategy</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button id="strategy-sentence" onclick="setStrategy(true)" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Short Sentences</button>
-                    <button id="strategy-word" onclick="setStrategy(false)" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">Words / Custom Lines</button>
+                    <button id="strategy-sentence" onclick="setStrategy(true)" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Sentences</button>
+                    <button id="strategy-word" onclick="setStrategy(false)" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">Words</button>
                 </div>
             </div>
 
@@ -92,6 +92,13 @@
         <!-- RIGHT PANEL: AUDIO PERFORMANCE PLAYER HUD -->
         <section class="flex-1 p-8 flex flex-col justify-between bg-gray-100">
             <div class="flex-1 flex flex-col justify-center items-center space-y-6">
+
+                <!-- dictation mode button -->
+                <div class="flex justify-end items-center">
+                    <button id="dictation-toggle-btn" onclick="toggleDictationMode()" class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition">
+                        <span>✍ Dictation Mode: OFF</span>
+                    </button>
+                </div>
                 
                 <!-- Main Screen Text Indicator Window Frame Component -->
                 <div class="w-full max-w-2xl bg-white rounded-2xl shadow-md p-8 min-h-[280px] flex flex-col justify-between border border-gray-200">
@@ -152,6 +159,7 @@
         let splitBySentenceStrategy = true;
         let selectedLanguage = 'zh'; 
         let isShuffleEnabled = false;
+        let isDictationEnabled = false;
         
         let allSystemVoices = [];
         let chosenVoiceMapping = { 'zh': null, 'en': null };
@@ -433,6 +441,19 @@
             if (activeList) initializeTrackSequencer();
         }
 
+        function toggleDictationMode() {
+            isDictationEnabled = !isDictationEnabled;
+            const btn = document.getElementById("dictation-toggle-btn");
+            if (isDictationEnabled) {
+                btn.className = "flex items-center space-x-2 text-sm font-bold text-white bg-blue-600 border border-red-600 px-5 py-3 rounded-xl shadow-sm hover:bg-red-700 transition";
+                btn.querySelector("span").textContent = "✍ Dictation Mode: ON";
+            } else {
+                btn.className = "flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition";
+                btn.querySelector("span").textContent = "✍ Dictation Mode: OFF";
+            }
+            updatePlayerScreenHUD() 
+        }
+
         function speakCurrentItem() {
             if (activePlaybackArray.length === 0 || !activeList || typeof speechSynthesis === 'undefined') return;
             
@@ -495,13 +516,22 @@
             document.getElementById("playback-index-counter").textContent = `Item ${playbackIndex + 1} of ${activePlaybackArray.length}`;
             
             const screenText = document.getElementById("playback-screen-text");
-            screenText.textContent = activePlaybackArray[playbackIndex];
-            
-            if (activePlaybackArray[playbackIndex].length <= 2) {
-                screenText.className = "text-center text-7xl font-bold text-gray-800 leading-relaxed my-auto px-4";
-            } else {
-                screenText.className = "text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
+
+            if (isDictationEnabled) {
+                screenText.textContent = '👂';
+
+                screenText.className = "text-center text-7xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
             }
+            else {
+                screenText.textContent = activePlaybackArray[playbackIndex];
+
+                if (activePlaybackArray[playbackIndex].length <= 2) {
+                    screenText.className = "text-center text-7xl font-bold text-gray-800 leading-relaxed my-auto px-4";
+                } else {
+                    screenText.className = "text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
+                }
+            }
+            
             
             document.getElementById("status-bar").textContent = `Currently Viewing: ${activeList.name}`;
             
