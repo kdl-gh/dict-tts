@@ -8,7 +8,8 @@
     <!--script src="https://tailwindcss.com"></script-->
     <script src="https://cdn.tailwindcss.com"></script>
     <!--link rel="stylesheet" href="https://cloudflare.com"-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com">
+    <!--link rel="stylesheet" href="https://cdnjs.cloudflare.com"-->
+    <!--script src="https://cloudflare.com"></script-->
     <style>
         body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     </style>
@@ -17,7 +18,7 @@
 
     <!-- TOP CONTROL NAVIGATION BAR -->
     <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <h1 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-language text-blue-600 mr-2"></i>Language Reader Dashboard</h1>
+        <h1 class="text-xl font-bold text-gray-800"><!--i class="fa-solid fa-language text-blue-600 mr-2"></i-->📖 Language Reader Dashboard</h1>
         <div id="status-bar" class="text-sm font-semibold text-gray-500">Loading your language library...</div>
     </header>
 
@@ -31,7 +32,7 @@
                 <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Create Group</h2>
                 <div class="flex space-x-2">
                     <input type="text" id="group-name-input" placeholder="New Group Name" class="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-blue-500">
-                    <button onclick="createNewGroup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium"><i class="fa-solid fa-plus">+</i></button>
+                    <button onclick="createNewGroup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium"><!--i class="fa-solid fa-plus"></i-->+</button>
                 </div>
             </div>
 
@@ -104,7 +105,7 @@
                 <!-- CONFIGURATION PANEL: DYNAMIC HARDWARE VOICE SELECTOR -->
                 <div class="w-full max-w-2xl grid grid-cols-2 gap-4">
                     <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col space-y-1.5">
-                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-headset mr-1 text-blue-500"></i> Active System Voice Engine</label>
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider"><!--i class="fa-solid fa-headset mr-1 text-blue-500"></i-->🎧 Active System Voice Engine</label>
                         <select id="hardware-voice-dropdown" onchange="userSelectedVoiceOverride()" class="w-full text-sm font-medium bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-2 text-gray-700 focus:outline-blue-500">
                             <option value="">(Loading system voices...)</option>
                         </select>
@@ -112,7 +113,7 @@
 
                     <div class="flex justify-end items-center">
                         <button id="shuffle-toggle-btn" onclick="toggleShuffleMode()" class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition">
-                            <i class="fa-solid fa-shuffle"></i> <span>Shuffle Order: OFF</span>
+                            <!--i class="fa-solid fa-shuffle"></i--><span>🔀 Shuffle Order: OFF</span>
                         </button>
                     </div>
                 </div>
@@ -122,19 +123,19 @@
             <div class="w-full max-w-md mx-auto bg-white rounded-full shadow-lg border border-gray-200 p-4 flex items-center justify-around mb-6">
                 <!-- PREVIOUS BUTTON -->
                 <button onclick="goToPreviousItem()" class="flex flex-col items-center group">
-                    <div class="w-12 h-12 rounded-full bg-orange-100 group-hover:bg-orange-200 flex items-center justify-center text-orange-600 text-lg transition"><i class="fa-solid fa-backward"></i></div>
+                    <div class="w-12 h-12 rounded-full bg-orange-100 group-hover:bg-orange-200 flex items-center justify-center text-orange-600 text-lg transition"><!--i class="fa-solid fa-backward"></i-->⏮</div>
                     <span class="text-[10px] font-bold text-gray-500 mt-1 uppercase">Prev</span>
                 </button>
 
                 <!-- PLAY / REPLAY CURRENT ITEM BUTTON -->
                 <button onclick="speakCurrentItem()" class="flex flex-col items-center group">
-                    <div class="w-16 h-16 rounded-full bg-blue-600 group-hover:bg-blue-700 flex items-center justify-center text-white text-2xl shadow-md transition"><i class="fa-solid fa-play ml-1"></i></div>
+                    <div class="w-16 h-16 rounded-full bg-blue-600 group-hover:bg-blue-700 flex items-center justify-center text-white text-2xl shadow-md transition"><!--i class="fa-solid fa-play ml-1"></i-->▶</div>
                     <span class="text-[10px] font-bold text-gray-500 mt-1 uppercase">Play</span>
                 </button>
 
                 <!-- NEXT BUTTON -->
                 <button onclick="goToNextItem()" class="flex flex-col items-center group">
-                    <div class="w-12 h-12 rounded-full bg-green-100 group-hover:bg-green-200 flex items-center justify-center text-green-600 text-lg transition"><i class="fa-solid fa-forward"></i></div>
+                    <div class="w-12 h-12 rounded-full bg-green-100 group-hover:bg-green-200 flex items-center justify-center text-green-600 text-lg transition"><!--i class="fa-solid fa-forward"></i-->⏭</div>
                     <span class="text-[10px] font-bold text-gray-500 mt-1 uppercase">Next</span>
                 </button>
             </div>
@@ -158,14 +159,14 @@
         // Punctuation maps
         const punctuationAudioMap = {
             'zh': {
-                '.': '句號', '。': '句號', '?': '問號', '？': '問號', '!': '感嘆號', '！': '感嘆號',
-                ',': '逗號', '，': '逗號', '、': '頓號', ':': '冒號', '：': '冒號',
-                '“': '開引號', '”': '關引號', '「': '開引號', '」': '關引號'
+                '.': ', 句號, ', '。': ', 句號, ', '?': ', 問號, ', '？': ', 問號, ', '!': ', 感嘆號, ', '！': ', 感嘆號, ',
+                ',': ', 逗號, ', '，': ', 逗號, ', '、': ', 頓號, ', ':': ', 冒號, ', '：': ', 冒號, ',
+                '“': ', 開引號, ', '”': ', 關引號, ', '「': ', 開引號, ', '」': ', 關引號, '
             },
             'en': {
-                '.': ' Full Stop', '。': ' Full Stop', '?': ' Question Mark', '？': ' Question Mark', '!': ' Exclamation Mark', '！': ' Exclamation Mark',
-                ',': ' Comma', '，': ' Comma', '、': ' Comma', ':': ' Colon', '：': ' Colon',
-                '"': ' Quotation Mark ', "'": ' Quotation Mark ', '“': ' Open Quotation Mark ', '”': ' Close Quotation Mark '
+                '.': ', Full Stop, ', '。': ', Full Stop, ', '?': ', Question Mark, ', '？': ', Question Mark, ', '!': ', Exclamation Mark, ', '！': ', Exclamation Mark, ',
+                ',': ', Comma, ', '，': ', Comma, ', '、': ', Comma, ', ':': ', Colon, ', '：': ', Colon',
+                '"': ', Quotation Mark, ', "'": ', Quotation Mark, ', '“': ', Open Quotation Mark, ', '”': ', Close Quotation Mark, '
             }
         };
 
@@ -292,7 +293,7 @@
         // 4. TEXT PARSING SEGMENTATION ENGINE MATRIX
         function executeTokenSplitRules(text, parseBySentences, lang) {
             if (parseBySentences) {
-                const tokens = text.split(/([.!?。！？,，\n\r：:]+)/);
+                const tokens = text.split(/([.!?。！？,，、\n\r：:]+)/);
                 const items = [];
                 for (let i = 0; i < tokens.length; i += 2) {
                     let sentence = tokens[i] ? tokens[i].trim() : "";
@@ -424,10 +425,10 @@
             const btn = document.getElementById("shuffle-toggle-btn");
             if (isShuffleEnabled) {
                 btn.className = "flex items-center space-x-2 text-sm font-bold text-white bg-blue-600 border border-blue-600 px-5 py-3 rounded-xl shadow-sm hover:bg-blue-700 transition";
-                btn.querySelector("span").textContent = "Shuffle Order: ON";
+                btn.querySelector("span").textContent = "🔀 Shuffle Order: ON";
             } else {
                 btn.className = "flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition";
-                btn.querySelector("span").textContent = "Shuffle Order: OFF";
+                btn.querySelector("span").textContent = "🔀 Shuffle Order: OFF";
             }
             if (activeList) initializeTrackSequencer();
         }
@@ -552,7 +553,7 @@
                                 <span class="text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-700 font-bold mr-1.5">${langBadge}</span>
                                 ${sub.name}
                             </span>
-                            <button onclick="deleteListFromDB(${sub.id}, event)" class="text-gray-400 hover:text-red-500 p-0.5"><i class="fa-regular fa-trash-can text-xs">🗑</i></button>
+                            <button onclick="deleteListFromDB(${sub.id}, event)" class="text-gray-400 hover:text-red-500 p-0.5"><!--i class="fa-regular fa-trash-can text-xs"></i-->🗑</button>
                         `;
                         subListContainer.appendChild(row);
                     });
