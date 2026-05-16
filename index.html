@@ -91,15 +91,16 @@
 
         <!-- RIGHT PANEL: AUDIO PERFORMANCE PLAYER HUD -->
         <section class="flex-1 p-8 flex flex-col justify-between bg-gray-100">
+
+            <!-- dictation mode button -->
+            <div class="flex justify-center items-center">
+                <button id="dictation-toggle-btn" onclick="toggleDictationMode()" class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition">
+                    <span>✍ Dictation Mode: OFF</span>
+                </button>
+            </div>
+
             <div class="flex-1 flex flex-col justify-center items-center space-y-6">
 
-                <!-- dictation mode button -->
-                <div class="flex justify-end items-center">
-                    <button id="dictation-toggle-btn" onclick="toggleDictationMode()" class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition">
-                        <span>✍ Dictation Mode: OFF</span>
-                    </button>
-                </div>
-                
                 <!-- Main Screen Text Indicator Window Frame Component -->
                 <div class="w-full max-w-2xl bg-white rounded-2xl shadow-md p-8 min-h-[280px] flex flex-col justify-between border border-gray-200">
                     <div id="playback-index-counter" class="text-center text-xs font-bold tracking-widest text-gray-400 uppercase">Item 0 of 0</div>
