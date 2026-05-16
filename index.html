@@ -102,13 +102,36 @@
             <div class="flex-1 flex flex-col justify-center items-center space-y-6">
 
                 <!-- Main Screen Text Indicator Window Frame Component -->
-                <div class="w-full max-w-2xl bg-white rounded-2xl shadow-md p-8 min-h-[280px] flex flex-col justify-between border border-gray-200">
+                <!--div class="w-full max-w-2xl bg-white rounded-2xl shadow-md p-8 min-h-[280px] flex flex-col justify-between border border-gray-200"-->
+                <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-md p-8 min-h-[280px] flex flex-col justify-between border border-gray-200">
+
+                    <!-- 2. Small circle "pencil" button positioned in the top-left corner -->
+                    <button 
+                        id="amend-text-btn"
+                        onclick="openAmendModal()" 
+                        title="Amend current text"
+                        class="absolute top-4 right-4 w-6 h-6 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-xs border border-gray-200 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-blue-400">
+                        ✏️
+                    </button>
+
                     <div id="playback-index-counter" class="text-center text-xs font-bold tracking-widest text-gray-400 uppercase">Item 0 of 0</div>
                     <div id="playback-screen-text" class="text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4">
                         Please select a compiled list from the sidebar navigation tree panel to begin.
                     </div>
                     <div id="playback-lang-indicator" class="text-center text-xs font-semibold text-gray-400">Voice Engine: None</div>
                 </div>
+
+                <!-- 3. Standard browser Dialog element for a clean modal window without complex HTML boilerplate -->
+                <dialog id="amend-dialog" class="backdrop:bg-black/30 rounded-xl p-6 shadow-xl border border-gray-200 w-full max-w-md bg-white">
+                    <div class="flex flex-col space-y-4">
+                        <h3 class="text-base font-bold text-gray-700">Amend Text Content</h3>
+                        <textarea id="amend-text-input" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-blue-500 resize-none text-gray-700"></textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="closeAmendModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium rounded-lg text-xs transition-colors">Cancel</button>
+                            <button onclick="commitAmendText()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-xs transition-colors shadow-sm">Amend</button>
+                        </div>
+                    </div>
+                </dialog>
 
                 <!-- CONFIGURATION PANEL: DYNAMIC HARDWARE VOICE SELECTOR -->
                 <div class="w-full max-w-2xl grid grid-cols-2 gap-4">
@@ -134,6 +157,33 @@
                         <select id="hardware-voice-dropdown" onchange="userSelectedVoiceOverride()" class="w-full text-sm font-medium bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-2 text-gray-700 focus:outline-blue-500">
                             <option value="">(Loading system voices...)</option>
                         </select>
+
+                        <!-- Inside your Active System Voice Engine box, directly under the dropdown select tag -->
+                        <div class="mt-4 pt-4 border-t border-gray-100 flex flex-col space-y-1.5">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">⏱️ Speech Speed Rate</label>
+                                <span id="speed-label-text" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Slow</span>
+                            </div>
+                            
+                            <!-- 4-step custom snap slider tailored for iPadOS compatibility -->
+                            <input 
+                                id="speech-speed-slider" 
+                                type="range" 
+                                min="1" 
+                                max="4" 
+                                value="2" 
+                                step="1" 
+                                oninput="updateSpeechSpeedDisplay()"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 focus:outline-none">
+                            
+                            <!-- Visual indicators beneath the slider bar tracking the text choices -->
+                            <div class="flex justify-between text-[10px] font-medium text-gray-400 px-1">
+                                <span>Very Slow</span>
+                                <span>Slow</span>
+                                <span>Normal</span>
+                                <span>Fast</span>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -183,6 +233,14 @@
         
         let allSystemVoices = [];
         let chosenVoiceMapping = { 'zh': null, 'en': null };
+
+        // Global speed configuration mapping
+        const speedMap = {
+            1: { label: "Very Slow", rate: 0.6 },
+            2: { label: "Slow",      rate: 0.8 },
+            3: { label: "Normal",    rate: 1.0 },
+            4: { label: "Fast",      rate: 1.2 }
+        };
 
         // Punctuation maps
         const punctuationAudioMap = {
@@ -469,6 +527,7 @@
 
         function toggleDictationMode() {
             isDictationEnabled = !isDictationEnabled;
+
             const btn = document.getElementById("dictation-toggle-btn");
             if (isDictationEnabled) {
                 btn.className = "flex items-center space-x-2 text-sm font-bold text-white bg-red-600 border border-red-600 px-5 py-3 rounded-xl shadow-sm hover:bg-red-700 transition";
@@ -478,6 +537,15 @@
                 btn.querySelector("span").textContent = "✍ Dictation Mode: OFF";
             }
             updatePlayerScreenHUD() 
+
+            const amendButton = document.getElementById('amend-text-btn');
+            if (isDictationEnabled) {
+                // Hides the button entirely from view
+                amendButton.classList.add('hidden');
+            } else {
+                // Shows the button again when dictation mode is turned off
+                amendButton.classList.remove('hidden');
+            }
         }
 
         function speakCurrentItem() {
@@ -509,7 +577,7 @@
                 utterance.lang = langMode === 'zh' ? 'zh-HK' : 'en-GB';
             }
 
-            utterance.rate = 0.66; //0.88; 
+            utterance.rate = getSelectedSpeechRate(); //0.5; //0.88; 
             window.speechSynthesis.speak(utterance);
         }
 
@@ -644,6 +712,64 @@
       // Execute and listen for WebKit's delayed loading
       //window.speechSynthesis.onvoiceschanged = debugVoices;
       //debugVoices();
+    </script>
+    <script>
+        // Opens the modal and populates it with the current displayed text
+        function openAmendModal() {
+
+          const screenTextElement = document.getElementById('playback-screen-text');
+          const textInput = document.getElementById('amend-text-input');
+          const dialog = document.getElementById('amend-dialog');
+          
+          // Guard clause to prevent editing the default start instruction screen
+          //if (activePlaybackArray.length === 0 || !activeList || typeof speechSynthesis === 'undefined')
+          if (!activeList || activePlaybackArray.length === 0) {
+            alert("Please select and start a valid data stream list before editing.");
+            return;
+          }
+          
+          // Fetch current active item string directly from data storage
+          textInput.value = activePlaybackArray[playbackIndex];
+          dialog.showModal();
+        }
+
+        // Closes the modal without doing anything
+        function closeAmendModal() {
+          document.getElementById('amend-dialog').close();
+        }
+
+        // Commits the modified text to the application and interface
+        function commitAmendText() {
+          const newValue = document.getElementById('amend-text-input').value.trim();
+          
+          if (newValue === "") {
+            alert("Text element content cannot be empty.");
+            return;
+          }
+          
+          // 1. Update text content in your running sequence array
+          activePlaybackArray[playbackIndex] = newValue;
+          
+          // 2. Refresh UI playback board display immediately
+          document.getElementById('playback-screen-text').innerText = newValue;
+          
+          // 3. Optional: Add your custom IndexedDB update block here if modifications need persistence across page refreshes
+          
+          closeAmendModal();
+        }
+
+        // Returns the true decimal speed value for your text-to-speech execution engine
+        function getSelectedSpeechRate() {
+            const sliderValue = document.getElementById('speech-speed-slider')?.value || 2;
+            return speedMap[sliderValue].rate;
+        }
+
+        // Updates the small text indicator label when sliding across options
+        function updateSpeechSpeedDisplay() {
+            const sliderValue = document.getElementById('speech-speed-slider').value;
+            const label = document.getElementById('speed-label-text');
+            label.innerText = speedMap[sliderValue].label;
+        }
     </script>
 </body>
 </html>
