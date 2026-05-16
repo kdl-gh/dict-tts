@@ -213,7 +213,10 @@
             const dropdown = document.getElementById("hardware-voice-dropdown");
             
             // Filter down to valid target languages
-            const validVoices = allSystemVoices.filter(v => v.lang === 'zh-HK' || v.lang === 'en-GB');
+            //const validVoices = allSystemVoices.filter(v => v.lang === 'zh-HK' || v.lang === 'en-GB');
+            const validVoices = allSystemVoices.filter(v => v.lang === 'zh-HK' || v.lang === 'en-GB' 
+                                                            || v.lang === 'yue-HK'
+                                                            );
 
             if (validVoices.length === 0) {
                 dropdown.innerHTML = `<option value="">Default System Voice</option>`;
@@ -221,7 +224,7 @@
             }
 
             dropdown.innerHTML = "";
-            const zhGroup = document.createElement("optgroup"); zhGroup.label = "Cantonese Voices (zh-HK)";
+            const zhGroup = document.createElement("optgroup"); zhGroup.label = "Cantonese Voices (zh-HK/yue-HK)";
             const enGroup = document.createElement("optgroup"); enGroup.label = "British Voices (en-GB)";
 
             validVoices.forEach(voice => {
@@ -232,7 +235,8 @@
                 if (voice.name.toLowerCase().includes('premium')) label += " (Premium HD)";
                 opt.textContent = label;
 
-                if (voice.lang === 'zh-HK') zhGroup.appendChild(opt);
+                //if (voice.lang === 'zh-HK') zhGroup.appendChild(opt);
+                if (voice.lang === 'zh-HK' || voice.lang === 'yue-HK') zhGroup.appendChild(opt);
                 if (voice.lang === 'en-GB') enGroup.appendChild(opt);
             });
 
@@ -244,6 +248,8 @@
             const savedEnVoice = localStorage.getItem("last_selected_voice_en");
 
             chosenVoiceMapping['zh'] = allSystemVoices.find(v => v.name === savedZhVoice) || 
+                                       allSystemVoices.find(v => v.lang === 'yue-HK' && v.name.toLowerCase().includes('enhanced')) ||
+                                       allSystemVoices.find(v => v.lang === 'yue-HK')
                                        allSystemVoices.find(v => v.lang === 'zh-HK' && v.name.toLowerCase().includes('enhanced')) ||
                                        allSystemVoices.find(v => v.lang === 'zh-HK') || null;
 
@@ -594,8 +600,7 @@
             });
         }
     </script>
-    
-    <script>
+    <!--script>
       function debugVoices() {
         const voices = window.speechSynthesis.getVoices();
         if (voices.length === 0) return;
@@ -620,6 +625,6 @@
       // Execute and listen for WebKit's delayed loading
       window.speechSynthesis.onvoiceschanged = debugVoices;
       debugVoices();
-    </script>
+</script-->
 </body>
 </html>
