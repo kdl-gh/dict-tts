@@ -234,13 +234,32 @@
         let allSystemVoices = [];
         let chosenVoiceMapping = { 'zh': null, 'en': null };
 
-        // Global speed configuration mapping
-        const speedMap = {
-            1: { label: "Very Slow", rate: 0.5 },
-            2: { label: "Slow",      rate: 0.7 },
-            3: { label: "Normal",    rate: 1.0 },
-            4: { label: "Fast",      rate: 1.2 }
+        // Detect if the device is an iPhone (iOS) or an iPad (iPadOS)
+        const isAppleMobileDevice = () => {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+            // Modern iPads pretend to be MacBooks, so we check for Mac + multi-touch capabilities
+            const isiPadOS = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            
+            return isIOS || isiPadOS;
         };
+
+        // Global speed configuration mapping
+        const speedMap = isAppleMobileDevice() 
+        ? {
+            // Slower profiles tuned specifically to compensate for fast iPadOS system engines
+            1: { label: "Very Slow", rate: 0.4 },
+            2: { label: "Slow",      rate: 0.6 },
+            3: { label: "Normal",    rate: 0.8 }, // Drops native 1.0 down to a calmer 0.8 pace
+            4: { label: "Fast",      rate: 1.1 }
+          }
+        : {
+            // Standard profiles for Desktop Chrome, macOS, and Windows
+            1: { label: "Very Slow", rate: 0.6 },
+            2: { label: "Slow",      rate: 0.8 },
+            3: { label: "Normal",    rate: 1.0 },
+            4: { label: "Fast",      rate: 1.4 }
+          };
 
         // Punctuation maps
         const punctuationAudioMap = {
