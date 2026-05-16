@@ -594,5 +594,32 @@
             });
         }
     </script>
+    
+    <script>
+      function debugVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) return;
+
+        // Filter to find any voice related to Hong Kong, Chinese, or Cantonese
+        const targetVoices = voices.filter(v => 
+          v.lang.toLowerCase().includes('zh') || 
+          v.lang.toLowerCase().includes('yu') || 
+          v.lang.toLowerCase().includes('hk')
+        );
+
+        if (targetVoices.length === 0) {
+          alert("No Chinese/Cantonese voices found. Total system voices found: " + voices.length);
+          return;
+        }
+
+        // Format the list to show Name and Language Code
+        const voiceListText = targetVoices.map(v => `${v.name} (${v.lang})`).join('\n');
+        alert("Found Chinese/Cantonese Voices:\n" + voiceListText);
+      }
+
+      // Execute and listen for WebKit's delayed loading
+      window.speechSynthesis.onvoiceschanged = debugVoices;
+      debugVoices();
+    </script>
 </body>
 </html>
