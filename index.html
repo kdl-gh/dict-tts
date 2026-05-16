@@ -57,13 +57,28 @@
             </div>
 
             <!-- CHOOSE LANGUAGE OPTION -->
+
             <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">Language Voice Target Profile</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="flex items-center space-x-2">
+                        <input id="lang-chinese" type="radio" name="language" value="zh" onclick="setLanguageOption('zh')" class="w-4 h-4">
+                        <label for="lang-chinese" class="text-sm font-medium text-gray-700">Chinese (Cantonese Voice)</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input id="lang-english" type="radio" name="language" value="en" onclick="setLanguageOption('en')" class="w-4 h-4">
+                        <label for="lang-english" class="text-sm font-medium text-gray-700">English (British Voice)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!--div class="space-y-1">
                 <label class="text-xs font-bold text-gray-500">Language Voice Target Profile</label>
                 <div class="grid grid-cols-2 gap-2">
                     <button id="lang-chinese" onclick="setLanguageOption('zh')" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Chinese (Cantonese Voice)</button>
                     <button id="lang-english" onclick="setLanguageOption('en')" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">English (British Voice)</button>
                 </div>
-            </div>
+            </div-->
 
             <div class="space-y-1">
                 <label class="text-xs font-bold text-gray-500">Parsing Breakdown Target Strategy</label>
