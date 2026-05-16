@@ -112,12 +112,31 @@
 
                 <!-- CONFIGURATION PANEL: DYNAMIC HARDWARE VOICE SELECTOR -->
                 <div class="w-full max-w-2xl grid grid-cols-2 gap-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col space-y-1.5">
+                    <!--div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col space-y-1.5">
+                        <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">🎧 Active System Voice Engine</label>
+                        <select id="hardware-voice-dropdown" onchange="userSelectedVoiceOverride()" class="w-full text-sm font-medium bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-2 text-gray-700 focus:outline-blue-500">
+                            <option value="">(Loading system voices...)</option>
+                        </select>
+                    </div-->
+
+                    <!-- 1. Added 'relative' to this outer container line -->
+                    <div class="relative bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col space-y-1.5">
+                        
+                        <!-- 2. Added small circle "?" button positioned in the top-right corner -->
+                        <button 
+                            onclick="debugVoices()" 
+                            title="Debug Available Voices"
+                            class="absolute top-3 right-3 w-5 h-5 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-[10px] font-bold border border-gray-200 shadow-sm transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-blue-400">
+                            ?
+                        </button>
+
                         <label class="text-xs font-bold text-gray-400 uppercase tracking-wider"><!--i class="fa-solid fa-headset mr-1 text-blue-500"></i-->🎧 Active System Voice Engine</label>
                         <select id="hardware-voice-dropdown" onchange="userSelectedVoiceOverride()" class="w-full text-sm font-medium bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-2 text-gray-700 focus:outline-blue-500">
                             <option value="">(Loading system voices...)</option>
                         </select>
                     </div>
+
+
 
                     <div class="flex justify-end items-center">
                         <button id="shuffle-toggle-btn" onclick="toggleShuffleMode()" class="flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition">
@@ -600,7 +619,7 @@
             });
         }
     </script>
-    <!--script>
+    <script>
       function debugVoices() {
         const voices = window.speechSynthesis.getVoices();
         if (voices.length === 0) return;
@@ -623,8 +642,8 @@
       }
 
       // Execute and listen for WebKit's delayed loading
-      window.speechSynthesis.onvoiceschanged = debugVoices;
-      debugVoices();
-</script-->
+      //window.speechSynthesis.onvoiceschanged = debugVoices;
+      //debugVoices();
+    </script>
 </body>
 </html>
