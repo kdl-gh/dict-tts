@@ -488,7 +488,7 @@
             const itemsArray = executeTokenSplitRules(text, splitBySentenceStrategy, selectedLanguage);
 
             const tx = db.transaction(["lists"], "readwrite");
-            tx.objectStore("lists").add({ groupId: groupId, name: name, items: itemsArray, lang: selectedLanguage });
+            tx.objectStore("lists").add({ groupId: groupId, name: name, items: itemsArray, lang: selectedLanguage, shuffleEnabled: false });
             tx.oncomplete = () => {
                 document.getElementById("list-name-input").value = "";
                 document.getElementById("text-blob-input").value = "";
@@ -514,6 +514,8 @@
             tx.objectStore("lists").get(listId).onsuccess = (e) => {
                 activeList = e.target.result;
                 playbackIndex = 0;
+                isShuffleEnabled = activeList.shuffleEnabled ?? false;
+                syncShuffleButtonUI();
                 syncDropdownUIWithActiveProfile();
                 initializeTrackSequencer();
             };
@@ -531,8 +533,7 @@
             speakCurrentItem();
         }
 
-        function toggleShuffleMode() {
-            isShuffleEnabled = !isShuffleEnabled;
+        function syncShuffleButtonUI() {
             const btn = document.getElementById("shuffle-toggle-btn");
             if (isShuffleEnabled) {
                 btn.className = "flex items-center space-x-2 text-sm font-bold text-white bg-blue-600 border border-blue-600 px-5 py-3 rounded-xl shadow-sm hover:bg-blue-700 transition";
@@ -541,7 +542,18 @@
                 btn.className = "flex items-center space-x-2 text-sm font-bold text-gray-500 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition";
                 btn.querySelector("span").textContent = "🔀 Shuffle Order: OFF";
             }
-            if (activeList) initializeTrackSequencer();
+        }
+
+        function toggleShuffleMode() {
+            if (!activeList || !db) return;
+
+            isShuffleEnabled = !isShuffleEnabled;
+            activeList.shuffleEnabled = isShuffleEnabled;
+            syncShuffleButtonUI();
+
+            const tx = db.transaction(["lists"], "readwrite");
+            tx.objectStore("lists").put(activeList);
+            tx.oncomplete = () => initializeTrackSequencer();
         }
 
         function toggleDictationMode() {
@@ -659,6 +671,8 @@
 
         function resetPlayerUI() {
             activeList = null; activePlaybackArray = []; playbackIndex = 0;
+            isShuffleEnabled = false;
+            syncShuffleButtonUI();
             document.getElementById("playback-index-counter").textContent = "Item 0 of 0";
             document.getElementById("playback-screen-text").textContent = "Please select a compiled list from the sidebar navigation tree panel to begin.";
             document.getElementById("playback-screen-text").className = "text-center text-3xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
