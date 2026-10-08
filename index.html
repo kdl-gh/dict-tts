@@ -261,13 +261,13 @@
         const punctuationAudioMap = {
             'zh': {
                 '.': ', 句號, ', '。': ', 句號, ', '?': ', 問號, ', '？': ', 問號, ', '!': ', 感嘆號, ', '！': ', 感嘆號, ',
-                ',': ', 逗號, ', '，': ', 逗號, ', '、': ', 頓號, ', ':': ', 冒號, ', '：': ', 冒號, ', 
+                ',': ', 逗號, ', '，': ', 逗號, ', '、': ', 頓號, ', ':': ', 冒號, ', '：': ', 冒號, ', '；': ', 分號, ', ';': ', 分號, ', 
                 '－': ', 破折號, ', '——': ', 破折號, ', '-': ', 破折號, ',
                 '“': ', 開引號, ', '”': ', 關引號, ', '「': ', 開引號, ', '」': ', 關引號, '
             },
             'en': {
                 '.': ', Full Stop, ', '。': ', Full Stop, ', '?': ', Question Mark, ', '？': ', Question Mark, ', '!': ', Exclamation Mark, ', '！': ', Exclamation Mark, ',
-                ',': ', Comma, ', '，': ', Comma, ', '、': ', Comma, ', ':': ', Colon, ', '：': ', Colon',
+                ',': ', Comma, ', '，': ', Comma, ', '、': ', Comma, ', ':': ', Colon, ', '：': ', Colon, ', '；': ', Semicolon, ', ';': ', Semicolon, ',
                 '-': ', Hyphen, ', 
                 '"': ', Quotation Mark, ', "'": ', Quotation Mark, ', '“': ', Open Quotation Mark, ', '”': ', Close Quotation Mark, '
             }
@@ -402,7 +402,7 @@
         // 4. TEXT PARSING SEGMENTATION ENGINE MATRIX
         function executeTokenSplitRules(text, parseBySentences, lang) {
             if (parseBySentences) {
-                const tokens = text.split(/([.!?。！？,，、\n\r：:]+)/);
+                const tokens = text.split(/([.!?。！？,，、\n\r：:;；]+)/);
                 const items = [];
                 for (let i = 0; i < tokens.length; i += 2) {
                     let sentence = tokens[i] ? tokens[i].trim() : "";
