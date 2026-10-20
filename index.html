@@ -244,17 +244,17 @@
         const speedMap = isAppleMobileDevice() 
         ? {
             // Slower profiles tuned specifically to compensate for fast iPadOS system engines
-            1: { label: "Very Slow", rate: 0.4 },
-            2: { label: "Slow",      rate: 0.6 },
-            3: { label: "Normal",    rate: 0.8 }, // Drops native 1.0 down to a calmer 0.8 pace
-            4: { label: "Fast",      rate: 1.1 }
+            1: { label: "Very Slow", rate: 0.2 },
+            2: { label: "Slow",      rate: 0.4 },
+            3: { label: "Normal",    rate: 0.6 }, // Drops native 1.0 down to a calmer 0.8 pace
+            4: { label: "Fast",      rate: 1.0 }
           }
         : {
             // Standard profiles for Desktop Chrome, macOS, and Windows
-            1: { label: "Very Slow", rate: 0.6 },
-            2: { label: "Slow",      rate: 0.8 },
-            3: { label: "Normal",    rate: 1.0 },
-            4: { label: "Fast",      rate: 1.4 }
+            1: { label: "Very Slow", rate: 0.4 },
+            2: { label: "Slow",      rate: 0.6 },
+            3: { label: "Normal",    rate: 0.8 },
+            4: { label: "Fast",      rate: 1.0 }
           };
 
         // Punctuation maps
