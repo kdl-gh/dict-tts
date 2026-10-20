@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Dictation</title>
+    <title>Dictation 默書小助手</title>
     <!-- Tailwind CSS Engine for dynamic iPad layouts -->
     <!--script src="https://tailwindcss.com"></script-->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +29,7 @@
 <body class="h-full min-h-0 flex flex-col overflow-hidden">
 
     <header class="shrink-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <h1 class="text-lg font-bold text-gray-800">Dictation</h1>
+        <h1 class="text-lg font-bold text-gray-800">Dictation 默書小助手</h1>
         <div id="status-bar" class="text-xs font-semibold text-gray-500 truncate max-w-[55%] text-right">Loading...</div>
     </header>
 
@@ -149,6 +149,13 @@
             <h2 class="text-lg font-bold text-gray-700">Add Text</h2>
 
             <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500">Save to Group</label>
+                <select id="group-target-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-blue-500">
+                    <option value="">Select a Group...</option>
+                </select>
+            </div>
+
+            <div class="space-y-1">
                 <label class="text-xs font-bold text-gray-500">List Name</label>
                 <input type="text" id="list-name-input" placeholder="e.g., UK English Vocabulary" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-blue-500">
             </div>
@@ -172,13 +179,6 @@
                     <button id="strategy-sentence" onclick="setStrategy(true)" class="py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">Sentences</button>
                     <button id="strategy-word" onclick="setStrategy(false)" class="py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-100">Words</button>
                 </div>
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-gray-500">Save to Group</label>
-                <select id="group-target-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-blue-500">
-                    <option value="">Select a Group...</option>
-                </select>
             </div>
 
             <button onclick="processAndSaveToIndexedDB()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors shadow">
@@ -488,6 +488,7 @@
             const tx = db.transaction(["lists"], "readwrite");
             tx.objectStore("lists").add({ groupId: groupId, name: name, items: itemsArray, lang: selectedLanguage, shuffleEnabled: false });
             tx.oncomplete = () => {
+                localStorage.setItem("last_selected_group_id", String(groupId));
                 document.getElementById("list-name-input").value = "";
                 document.getElementById("text-blob-input").value = "";
                 fetchDatabaseSchema();
@@ -652,7 +653,7 @@
             else {
                 screenText.textContent = activePlaybackArray[playbackIndex];
 
-                if (activePlaybackArray[playbackIndex].length <= 2) {
+                if (activePlaybackArray[playbackIndex].length <= 20) {
                     screenText.className = "text-center text-5xl font-bold text-gray-800 leading-relaxed my-auto px-4";
                 } else {
                     screenText.className = "text-center text-2xl font-semibold text-gray-800 leading-relaxed my-auto px-4";
@@ -720,6 +721,11 @@
                 groupSection.appendChild(subListContainer);
                 listContainer.appendChild(groupSection);
             });
+
+            const lastGroupId = localStorage.getItem("last_selected_group_id");
+            if (lastGroupId && dbState.some(g => String(g.id) === lastGroupId)) {
+                selectDropdown.value = lastGroupId;
+            }
         }
     </script>
     <script>
